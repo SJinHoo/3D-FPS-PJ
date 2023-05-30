@@ -27,8 +27,13 @@ public class PlayerMover : MonoBehaviour
     }
 
     private void Move()
-    {
-        controller.Move(moveDir * moveSpeed * Time.deltaTime);
+    {   
+        // 월드기준으로 움직임으로 카메라와 같이 적용할 경우 어색한 움직임
+        // controller.Move(moveDir * moveSpeed * Time.deltaTime);
+
+        // 바라보는 뱡항으로의 움직임
+        controller.Move(transform.forward * moveDir.z * moveSpeed * Time.deltaTime);
+        controller.Move(transform.right * moveDir.x * moveSpeed * Time.deltaTime);
     }
    
 
