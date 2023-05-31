@@ -19,6 +19,7 @@ public class PlayerMover : MonoBehaviour
     private float ySpeed = 0;
     private bool isWalking = false;
     private bool isGrounded;
+    private bool isJumping = false;
 
     private void Awake()
     {
@@ -74,14 +75,21 @@ public class PlayerMover : MonoBehaviour
     {
         controller.Move(transform.forward * moveDir.z * walkSpeed * Time.deltaTime);
         controller.Move(transform.right * moveDir.x * walkSpeed * Time.deltaTime);
-    }
-
-    private void OnWalk(InputValue value)
-    {
-        isWalking = value.isPressed;
-
         animator.SetBool("Walking", isWalking);
+
+        if (Keyboard.current.leftAltKey.wasPressedThisFrame)
+        {
+            isWalking = !isWalking;
+            if(isWalking)
+            {
+                return;
+            }
+            
+        }
     }
+
+    
+    
     private void Jump()
     {
         // 중력방향으로 지속적으로 힘을 가해준다
@@ -91,15 +99,21 @@ public class PlayerMover : MonoBehaviour
         if (GroundCheck() && ySpeed < 0) 
         {
             ySpeed = -1;
+            isJumping = false;
         }
-
+        
         controller.Move(Vector3.up * ySpeed * Time.deltaTime);
     }
     private void OnJump(InputValue value)
     {
         // isground의 경우 구현이 완벽하지 않기에 raycast로 구현
-        if(GroundCheck())
+        if (GroundCheck() && !isJumping)
+        {
             ySpeed = jumpSpeed;
+            animator.SetTrigger("Jump");
+            isJumping = true;
+        }
+
     }
 
     private bool GroundCheck()

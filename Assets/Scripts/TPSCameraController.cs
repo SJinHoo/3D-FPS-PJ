@@ -10,6 +10,7 @@ public class TPSCameraController : MonoBehaviour
     [SerializeField] private float mouseSensitivity;
     [SerializeField] private float CameraSensitivity;
     [SerializeField] private float lookDistance;
+    [SerializeField] Transform aimTarget;
 
 
     
@@ -41,7 +42,8 @@ public class TPSCameraController : MonoBehaviour
     private void Rotate()
     {
         Vector3 lookPoint = Camera.main.transform.position + Camera.main.transform.forward * lookDistance;
-        lookPoint.y = 0;
+        aimTarget.position = lookPoint;
+        lookPoint.y = transform.position.y;
         transform.LookAt(lookPoint);
     }
 
