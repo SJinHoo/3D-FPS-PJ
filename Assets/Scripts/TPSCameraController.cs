@@ -10,6 +10,8 @@ public class TPSCameraController : MonoBehaviour
     [SerializeField] private float mouseSensitivity;
     [SerializeField] private float CameraSensitivity;
     [SerializeField] private float lookDistance;
+
+
     
     private Vector2 lookDelta;
     private float xRotation;

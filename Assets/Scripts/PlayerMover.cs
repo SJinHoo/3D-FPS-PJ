@@ -6,24 +6,31 @@ using UnityEngine.InputSystem;
 
 public class PlayerMover : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed;
+    [SerializeField] private float runSpeed;
+    [SerializeField] private float walkSpeed;
     [SerializeField] private float jumpSpeed;
 
 
     private CharacterController controller;
-    private Vector3 moveDir;
-    private float ySpeed = 0;
+    private Animator animator;
 
+    private Vector3 moveDir;
+    private float moveSpeed;
+    private float ySpeed = 0;
+    private bool isWalking = false;
+    private bool isGrounded;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
         Move();
         Jump();
+        Walk();
     }
 
     private void Move()
@@ -31,9 +38,27 @@ public class PlayerMover : MonoBehaviour
         // 월드기준으로 움직임으로 카메라와 같이 적용할 경우 어색한 움직임
         // controller.Move(moveDir * moveSpeed * Time.deltaTime);
 
+        if(moveDir.magnitude == 0)
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, 0, 0.5f);
+        }
+
+        else if(isWalking)
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, walkSpeed, 0.5f);
+        }
+        else
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, runSpeed, 0.5f);
+        }
         // 바라보는 뱡항으로의 움직임
         controller.Move(transform.forward * moveDir.z * moveSpeed * Time.deltaTime);
         controller.Move(transform.right * moveDir.x * moveSpeed * Time.deltaTime);
+
+        animator.SetFloat("XSpeed", moveDir.x, 0.1f, Time.deltaTime);
+        animator.SetFloat("YSpeed", moveDir.z, 0.1f, Time.deltaTime);
+        animator.SetFloat("Speed", moveSpeed);
+
     }
    
 
@@ -41,8 +66,22 @@ public class PlayerMover : MonoBehaviour
     {
         Vector2 input = value.Get<Vector2>();
         moveDir = new Vector3(input.x, 0, input.y);
+
+        controller.Move(transform.forward * input.x * moveSpeed * Time.deltaTime);
+        controller.Move(transform.right * input.y * moveSpeed * Time.deltaTime);
+    }
+    private void Walk()
+    {
+        controller.Move(transform.forward * moveDir.z * walkSpeed * Time.deltaTime);
+        controller.Move(transform.right * moveDir.x * walkSpeed * Time.deltaTime);
     }
 
+    private void OnWalk(InputValue value)
+    {
+        isWalking = value.isPressed;
+
+        animator.SetBool("Walking", isWalking);
+    }
     private void Jump()
     {
         // 중력방향으로 지속적으로 힘을 가해준다
