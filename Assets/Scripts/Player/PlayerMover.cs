@@ -38,6 +38,7 @@ public class PlayerMover : MonoBehaviour
     {   
         // 월드기준으로 움직임으로 카메라와 같이 적용할 경우 어색한 움직임
         // controller.Move(moveDir * moveSpeed * Time.deltaTime);
+        // 선형보간
 
         if(moveDir.magnitude == 0)
         {
