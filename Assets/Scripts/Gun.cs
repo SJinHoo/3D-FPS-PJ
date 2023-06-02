@@ -43,8 +43,8 @@ public class Gun : MonoBehaviour
 
         IEnumerator ReleaseRoutine(GameObject effect)
         {
-            yield return new WaitForSeconds(0f);
-            GameManager.Resource.Destroy(effect.gameObject,3f);
+            yield return new WaitForSeconds(3f);
+            GameManager.Resource.Destroy(effect.gameObject);
         }
 
         IEnumerator TrailRoutine(Vector3 startPoint, Vector3 endPoint)
@@ -54,16 +54,16 @@ public class Gun : MonoBehaviour
             trail.Clear();
             float totalTime = Vector2.Distance(startPoint, endPoint) / bulletSpeed;
 
-            float time = 0;
-            while (time < 1)
+            float rate = 0;
+            while (rate < 1)
             {
-                trail.transform.position = Vector3.Lerp(startPoint, endPoint, time);
-                time += Time.deltaTime / totalTime;
+                trail.transform.position = Vector3.Lerp(startPoint, endPoint, rate);
+                rate += Time.deltaTime / totalTime;
                 
                 yield return null;
             }
 
-            GameManager.Resource.Destroy(trail.gameObject,3f);
+            GameManager.Resource.Destroy(trail.gameObject);
         }
     }
 }
