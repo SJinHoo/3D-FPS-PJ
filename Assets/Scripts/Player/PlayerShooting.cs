@@ -20,7 +20,7 @@ public class PlayerShooting : MonoBehaviour
 
     private void Awake()
     {
-        Resources.Load<TrailRenderer>("Resources/Prefabs/BulletTrail");
+        bulletTrail = Resources.Load<TrailRenderer>("Prefabs/BulletTrail");
         animator = GetComponent<Animator>();
 
     }
