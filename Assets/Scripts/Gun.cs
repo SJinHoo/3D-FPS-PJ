@@ -4,44 +4,54 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
-    [SerializeField] ParticleSystem hitEffect;
+    
     [SerializeField] ParticleSystem muzzleEffect;
-    [SerializeField] TrailRenderer bulletTrail;
     [SerializeField] float maxDistance;
     [SerializeField] float bulletSpeed;
     [SerializeField] int damage;
 
     
+
     public void Fire()
     {
         muzzleEffect.Play();
 
         RaycastHit hit;
+
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,out hit, maxDistance))
         {
+            // 맞을 수 있는 물체를 판별하는 코드
+            // IHittalble 인터페이스 생성하고 getcomponet 해주어 맞을 수 있는 객체를 선정해줌
             IHittable hittable = hit.transform.GetComponent<IHittable>();
-            ParticleSystem effect = Instantiate(hitEffect, hit.point, Quaternion.LookRotation(hit.normal));
-            effect.transform.parent = hit.transform.transform;
-            Destroy(effect.gameObject, 3f );
 
             
+            ParticleSystem effect = GameManager.Resource.Instantiate<ParticleSystem>("Prefabs/HitEffect", hit.point, Quaternion.LookRotation(hit.normal), true);
+            effect.transform.parent = hit.transform.transform;
+            StartCoroutine(ReleaseRoutine(effect.gameObject));
+
             StartCoroutine(TrailRoutine(muzzleEffect.transform.position, hit.point));
-            Destroy(effect.gameObject, 3f);
+
             hittable?.Hit(hit, damage);
             
-            //TrailRenderer 
+            
         }
 
         else
+        {            
+            StartCoroutine(TrailRoutine(muzzleEffect.transform.position, Camera.main.transform.forward * maxDistance));           
+        }
+
+        IEnumerator ReleaseRoutine(GameObject effect)
         {
-            
-            StartCoroutine(TrailRoutine(muzzleEffect.transform.position, Camera.main.transform.forward * maxDistance));
-            
+            yield return new WaitForSeconds(0f);
+            GameManager.Resource.Destroy(effect.gameObject,3f);
         }
 
         IEnumerator TrailRoutine(Vector3 startPoint, Vector3 endPoint)
         {
-            TrailRenderer trail = Instantiate(bulletTrail, muzzleEffect.transform.position, Quaternion.identity);
+            // Pooling 한 오브젝트는 반드시 초기화를 시켜주어야 함
+            TrailRenderer trail = GameManager.Resource.Instantiate<TrailRenderer>("Prefabs/BulletTrail", muzzleEffect.transform.position, Quaternion.identity,true);          
+            trail.Clear();
             float totalTime = Vector2.Distance(startPoint, endPoint) / bulletSpeed;
 
             float time = 0;
@@ -53,7 +63,7 @@ public class Gun : MonoBehaviour
                 yield return null;
             }
 
-            Destroy(trail.transform.gameObject, 3f);
+            GameManager.Resource.Destroy(trail.gameObject,3f);
         }
     }
 }

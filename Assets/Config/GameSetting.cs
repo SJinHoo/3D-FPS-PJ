@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class GameSetting : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Init()
     {
-        
+        InitGameManager();
     }
 
-    // Update is called once per frame
-    void Update()
+    private static void InitGameManager()
     {
-        
+        if (GameManager.Instance == null)
+        {
+            GameObject gameManager = new GameObject();
+            gameManager.name = "GameManager";
+            gameManager.AddComponent<GameManager>();
+        }
     }
 }

@@ -9,31 +9,30 @@ public class PlayerShooting : MonoBehaviour
 {
     [SerializeField] private Rig aimRig;
     [SerializeField] private float reloadTime;
+    [SerializeField] private float repeatTime;
     [SerializeField] WeaponHolder weaponHolder;
+    public TrailRenderer bulletTrail;
 
-
-
+    
     private Animator animator;
     private bool isReloading;
+    
 
     private void Awake()
     {
+        Resources.Load<TrailRenderer>("Resources/Prefabs/BulletTrail");
         animator = GetComponent<Animator>();
 
+    }
+
+    private void Update()
+    {
+        
     }
     private void OnReload(InputValue value)
     {
         StartCoroutine(ReloadRoutine());
     }
-
-    private void OnFire(InputValue value)
-    {
-        if (isReloading)
-            return;
-
-        Fire();
-    }
-
     IEnumerator ReloadRoutine()
     {
         animator.SetTrigger("Reload");
@@ -45,9 +44,41 @@ public class PlayerShooting : MonoBehaviour
 
     }
 
+    private void OnFire(InputValue value)
+    {
+        if (isReloading)
+            return;
+
+        Fire();
+    }
+
     private void Fire()
     {
         weaponHolder.Fire();
         animator.SetTrigger("Fire");
+    }
+
+    private void OnRapidFire(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            Debug.Log("연사");
+            RFroutine = StartCoroutine(RapidFireRoutine());
+        }
+        else
+        {
+            Debug.Log("연사 중지");
+            StopCoroutine(RFroutine);
+        }
+
+    }
+    public Coroutine RFroutine;
+    IEnumerator RapidFireRoutine()
+    {
+        while (true)
+        {
+            Fire();
+            yield return new WaitForSeconds(repeatTime);
+        }
     }
 }
